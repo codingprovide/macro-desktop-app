@@ -29,6 +29,7 @@ const SideBar = ({
   const [dialogOpen, setDialogOpen] = useState(false)
   const [buttonName, setButtonName] = useState('')
   const [buttonType, setButtonType] = useState('')
+  const [inputDeleyTime, setInputDelayTime] = useState('')
 
   const buttonList = [
     { name: '設定主要觸發鍵', type: 'mainKey' },
@@ -62,7 +63,7 @@ const SideBar = ({
     setButtonType('')
     setCapturedKey(null)
   }
-  const handleConfirem = (buttonType: string, capturedKey: string) => {
+  const handleConfirem = (buttonType) => {
     if (buttonType === 'mainKey') {
       setMainKey(capturedKey)
     } else if (buttonType === 'autoKey') {
@@ -72,10 +73,15 @@ const SideBar = ({
     } else if (buttonType === 'delayTime') {
       setDelayTime(delayTime)
     }
+
+    if (buttonType === 'delayTime') {
+      setDelayTime(inputDeleyTime)
+    }
     setDialogOpen(false)
     setButtonName('')
     setButtonType('')
     setCapturedKey(null)
+    setInputDelayTime('')
   }
 
   return (
@@ -114,10 +120,10 @@ const SideBar = ({
             )}
             {buttonType === 'delayTime' && (
               <TextField
-                onChange={(e) => setDelayTime(e.target.value)}
+                onChange={(e) => setInputDelayTime(e.target.value)}
                 type="number"
                 slotProps={{
-                  htmlInput: { step: 0.5 },
+                  htmlInput: { step: 0.5, min: 0 },
                   input: {
                     endAdornment: <InputAdornment position="end">秒</InputAdornment>
                   }
@@ -134,9 +140,16 @@ const SideBar = ({
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => handleConfirem(buttonType, capturedKey)} disabled={!capturedKey}>
-            確定
-          </Button>
+          {buttonType !== 'delayTime' && (
+            <Button onClick={() => handleConfirem(buttonType)} disabled={!capturedKey}>
+              確定
+            </Button>
+          )}
+          {buttonType === 'delayTime' && (
+            <Button onClick={() => handleConfirem(buttonType)} disabled={!inputDeleyTime}>
+              確定
+            </Button>
+          )}
           <Button onClick={handleDialogButtonClose}>取消</Button>
         </DialogActions>
       </Dialog>

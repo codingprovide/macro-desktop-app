@@ -1,7 +1,9 @@
-import { Chip, Stack, Box, Button } from '@mui/material'
+import { Chip, Stack, Box } from '@mui/material'
 import SideBar from './components/SideBar'
 import { useEffect, useState } from 'react'
 import DeleteIcon from '@mui/icons-material/Delete'
+import { v4 as uuid } from 'uuid'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 
 function App() {
   const [triggerListState, setTriggerListState] = useState([])
@@ -12,12 +14,22 @@ function App() {
   const [delayTime, setDelayTime] = useState(null)
 
   useEffect(() => {
-    setTriggerListState([
-      { name: '主要觸發鍵', key: mainKey },
-      { name: '自動觸發鍵', key: autoKey },
-      { name: '開始/暫停鍵', key: toggleKey },
-      { name: '延遲時間', key: delayTime }
-    ])
+    if (mainKey) {
+      setTriggerListState((prev) => [...prev, { name: '主要觸發鍵', key: mainKey, id: uuid() }])
+      setMainKey(null)
+    }
+    if (autoKey) {
+      setTriggerListState((prev) => [...prev, { name: '自動觸發鍵', key: autoKey, id: uuid() }])
+      setAutoKey(null)
+    }
+    if (toggleKey) {
+      setTriggerListState((prev) => [...prev, { name: '開始/暫停鍵', key: toggleKey, id: uuid() }])
+      setToggleKey(null)
+    }
+    if (delayTime) {
+      setTriggerListState((prev) => [...prev, { name: '延遲時間', key: delayTime, id: uuid() }])
+      setDelayTime(null)
+    }
   }, [mainKey, autoKey, toggleKey, delayTime])
   const setKey = async () => {
     const responese = await window.api.setKey()
@@ -44,7 +56,8 @@ function App() {
     console.info('You clicked the Chip.')
   }
 
-  const handleDelete = () => {
+  const handleDelete = (id) => {
+    setTriggerListState((prev) => prev.filter((trigger) => trigger.id !== id))
     console.info('You clicked the delete icon.')
   }
 
@@ -56,27 +69,37 @@ function App() {
         height: '100vh'
       }}
     >
-      <Stack sx={{ width: '60%', px: '8%', paddingTop: 2 }} spacing={2}>
+      <Stack sx={{ width: '60%', px: '8%', paddingY: 2, overflowY: 'auto' }}>
         {triggerListState.map((trigger, index) => (
-          <Chip
-            key={index}
-            label={
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                <span>{trigger.name + ': ' + (trigger.key || 'N/A')}</span>
-              </Box>
-            }
-            deleteIcon={<DeleteIcon sx={{ marginLeft: 'auto' }} />} // Ensure the delete icon moves to the end
-            variant="outlined"
-            onClick={handleClick}
-            onDelete={handleDelete}
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              width: '100%',
-              paddingRight: '10px' // Optional, to ensure enough space for the delete icon
-            }}
-            color="primary"
-          />
+          <Stack key={trigger.id}>
+            <Chip
+              label={
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                  <span>
+                    {trigger.name +
+                      ': ' +
+                      (trigger.key || 'N/A') +
+                      (trigger.name === '延遲時間' ? '秒' : '')}
+                  </span>
+                </Box>
+              }
+              deleteIcon={<DeleteIcon sx={{ marginLeft: 'auto' }} />} // Ensure the delete icon moves to the end
+              variant="outlined"
+              onClick={handleClick}
+              onDelete={() => handleDelete(trigger.id)}
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                width: '100%',
+                paddingRight: '10px' // Optional, to ensure enough space for the delete icon
+              }}
+              color="primary"
+            />
+
+            {triggerListState.length > 1 && index < triggerListState.length - 1 && (
+              <KeyboardArrowDownIcon color="action" fontSize="large" sx={{ margin: 'auto' }} />
+            )}
+          </Stack>
         ))}
       </Stack>
       <SideBar
