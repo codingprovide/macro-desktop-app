@@ -23,6 +23,7 @@
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@fontsource/roboto": "^5.0.14",
+    "@hello-pangea/dnd": "^17.0.0",
     "@mui/icons-material": "^6.1.0",
     "@mui/material": "^6.1.0",
     "@mui/styled-engine-sc": "^6.0.2",

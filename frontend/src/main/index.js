@@ -49,16 +49,6 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.handle('test', async () => {
-    try {
-      const res = await axios.get('http://localhost:5000/test')
-      return res.data
-    } catch (e) {
-      console.error(e)
-    }
-  })
-
   ipcMain.handle('setKey', async () => {
     try {
       const res = await axios.get('http://localhost:5000/setKey')

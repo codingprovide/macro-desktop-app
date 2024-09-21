@@ -7,11 +7,14 @@ import {
   DialogContentText,
   DialogActions,
   TextField,
-  InputAdornment
+  InputAdornment,
+  Alert
 } from '@mui/material'
 import React, { useState } from 'react'
 
 const SideBar = ({
+  triggerListState,
+  checkMainKey,
   getKey,
   setKey,
   pollKey,
@@ -64,7 +67,7 @@ const SideBar = ({
     setCapturedKey(null)
   }
   const handleConfirem = (buttonType) => {
-    if (buttonType === 'mainKey') {
+    if (!checkMainKey(triggerListState) && buttonType === 'mainKey') {
       setMainKey(capturedKey)
     } else if (buttonType === 'autoKey') {
       setAutoKey(capturedKey)
@@ -91,7 +94,8 @@ const SideBar = ({
       padding={2}
       sx={{
         backgroundColor: '#F2F1EF',
-        width: '40%'
+        width: '40%',
+        overflow: 'hidden'
       }}
     >
       {buttonList.map((button, index) => (
@@ -104,6 +108,10 @@ const SideBar = ({
         </Button>
       ))}
 
+      <Alert severity="success" sx={{ width: '100%' }}>
+        運作中....
+      </Alert>
+
       <Dialog open={dialogOpen} onClose={handleClose} fullWidth={true}>
         <DialogTitle>{buttonName}</DialogTitle>
         <DialogContent>
@@ -114,8 +122,21 @@ const SideBar = ({
               alignItems: 'center'
             }}
           >
-            {capturedKey !== null && buttonType !== 'delayTime' && <span>已設為{capturedKey}</span>}
-            {capturedKey == null && buttonType !== 'delayTime' && (
+            {checkMainKey(triggerListState) && buttonType === 'mainKey' && (
+              <span>只能設定一次</span>
+            )}
+            {buttonType !== 'mainKey' && capturedKey !== null && buttonType !== 'delayTime' && (
+              <span>已設為{capturedKey}</span>
+            )}
+
+            {buttonType === 'mainKey' &&
+              capturedKey !== null &&
+              !checkMainKey(triggerListState) && <span>已設為{capturedKey}</span>}
+
+            {buttonType !== 'mainKey' && capturedKey == null && buttonType !== 'delayTime' && (
+              <span>請按下您想要設定的按鍵</span>
+            )}
+            {buttonType === 'mainKey' && capturedKey == null && !checkMainKey(triggerListState) && (
               <span>請按下您想要設定的按鍵</span>
             )}
             {buttonType === 'delayTime' && (
@@ -130,17 +151,33 @@ const SideBar = ({
                 }}
               />
             )}
-            <Button
-              variant="contained"
-              disabled={!capturedKey}
-              onClick={() => handleOpen(buttonName, buttonType)}
-            >
-              重設
-            </Button>
+            {buttonType === 'mainKey' && !checkMainKey(triggerListState) && (
+              <Button
+                variant="contained"
+                disabled={!capturedKey}
+                onClick={() => handleOpen(buttonName, buttonType)}
+              >
+                重設
+              </Button>
+            )}
+            {buttonType !== 'mainKey' && (
+              <Button
+                variant="contained"
+                disabled={!capturedKey}
+                onClick={() => handleOpen(buttonName, buttonType)}
+              >
+                重設
+              </Button>
+            )}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          {buttonType !== 'delayTime' && (
+          {buttonType === 'mainKey' && !checkMainKey(triggerListState) && (
+            <Button onClick={() => handleConfirem(buttonType)} disabled={!capturedKey}>
+              確定
+            </Button>
+          )}
+          {buttonType !== 'delayTime' && buttonType !== 'mainKey' && (
             <Button onClick={() => handleConfirem(buttonType)} disabled={!capturedKey}>
               確定
             </Button>
